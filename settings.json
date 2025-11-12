@@ -1,32 +1,54 @@
 {
-    "siteTitle": "My Project Title",
-    "siteDescription": "This is the description of my project title",
-    "author": "John Doe",
-    "faviconUrl": "/assets/myfavicon.png",
-    "blogTitle": "Blog",
-    "blogDescription": "Here is the description of the blog part",
-    "productionUrl": "https://eleventy-libdoc.netlify.app",
-    "customLinks": [
-        {
-            "url": "/feed.xml",
-            "text": "Atom feed"
-        },
-        {
-            "url": "https://github.com/ita-design-system/eleventy-libdoc",
-            "text": "GitHub"
-        },
-        {
-            "url": "#",
-            "text": "Bluesky"
-        },
-        {
-            "url": "#",
-            "text": "LinkedIn"
-        },
-        {
-            "url": "#",
-            "text": "CodePen"
-        }
-    ],
-    "editThisPageRootUrl": "https://github.com/ita-design-system/eleventy-libdoc/blob/main"
+  "lang": "en",
+  "siteTitle": "CSLibre",
+  "siteDescription": "A free and open documentation resource for Computer Science concepts, projects, and teaching materials.",
+  "siteLogoUrl": "/assets/images/siteLogo.svg",
+  "siteLogoMaxHeight": 60,
+  "author": "Prashant Kulshrestha",
+  "faviconUrl": "/assets/images/favicon.svg",
+  "ogImageUrl": "",
+  "gitLastModifiedDate": true,
+  "customLinks": [
+    {
+      "text": "About CSLibre",
+      "url": "/about/"
+    },
+    {
+      "text": "Contribute",
+      "url": "/contribute/"
+    },
+    {
+      "url": "https://github.com/cslibre/cslibre.github.io",
+      "text": "GitHub"
+    }
+  ],
+  "blogTitle": "Updates",
+  "blogDescription": "Latest changes, tutorials, and announcements from the CSLibre project.",
+  "blogAuthor": "Prashant Kulshrestha",
+  "blogSlug": "updates",
+  "displayTagsListLink": true,
+  "tocEnabled": true,
+  "tocHtmlTags": ["h1", "h2", "h3", "h4", "h5", "h6"],
+  "tocMinTags": 1,
+  "htmlBasePathPrefix": "/",
+  "sandboxRunSwitch": true,
+  "searchEnabled": true,
+  "hljsLanguages": [
+    "xml",
+    "javascript",
+    "json",
+    "yaml",
+    "liquid",
+    "markdown",
+    "css",
+    "python",
+    "bash",
+    "java",
+    "html"
+  ],
+  "roundedImagesCorners": false,
+  "editThisPageRootUrl": "",
+  "imgBgColorLightMode": "transparent",
+  "imgBgColorDarkMode": "transparent",
+  "productionUrl": "https://cslibre.github.io"
 }

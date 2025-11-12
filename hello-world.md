@@ -1,5 +1,5 @@
 ---
-title: Hello World!
+title: Computer Science - Libre
 description: I am the home page of this project
 layout: libdoc_page.liquid
 permalink: index.html
