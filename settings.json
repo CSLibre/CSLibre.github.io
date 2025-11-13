@@ -42,5 +42,7 @@
   "editThisPageRootUrl": "",
   "imgBgColorLightMode": "#FFF",
   "imgBgColorDarkMode": "black",
-  "productionUrl": "https://cslibre.github.io"
+  "productionUrl": "https://cslibre.github.io",
+  "url": "https://cslibre.github.io"
+
 }
