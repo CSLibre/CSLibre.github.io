@@ -6,7 +6,7 @@
   "siteLogoMaxHeight": 60,
   "author": "Prashant Kulshrestha",
   "faviconUrl": "/assets/images/favicon.svg",
-  "ogImageUrl": "/assets/images/favicon.svg",
+  "ogImageUrl": "/assets/images/ogLogo.png",
   "gitLastModifiedDate": true,
   "customLinks": [
     {
