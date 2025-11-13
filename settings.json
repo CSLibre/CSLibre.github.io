@@ -6,29 +6,21 @@
   "siteLogoMaxHeight": 60,
   "author": "Prashant Kulshrestha",
   "faviconUrl": "/assets/images/favicon.svg",
-  "ogImageUrl": "",
+  "ogImageUrl": "/assets/images/favicon.svg",
   "gitLastModifiedDate": true,
   "customLinks": [
-    {
-      "text": "About CSLibre",
-      "url": "/about/"
-    },
-    {
-      "text": "Contribute",
-      "url": "/contribute/"
-    },
     {
       "url": "https://github.com/cslibre/cslibre.github.io",
       "text": "GitHub"
     }
   ],
-  "blogTitle": "Updates",
+  "blogTitle": "Whats New at CSLibre",
   "blogDescription": "Latest changes, tutorials, and announcements from the CSLibre project.",
-  "blogAuthor": "Prashant Kulshrestha",
+  "blogAuthor": "CSLibre",
   "blogSlug": "updates",
-  "displayTagsListLink": true,
+  "displayTagsListLink": false,
   "tocEnabled": true,
-  "tocHtmlTags": ["h1", "h2", "h3", "h4", "h5", "h6"],
+  "tocHtmlTags": ["h1", "h2"],
   "tocMinTags": 1,
   "htmlBasePathPrefix": "/",
   "sandboxRunSwitch": true,
@@ -48,7 +40,7 @@
   ],
   "roundedImagesCorners": false,
   "editThisPageRootUrl": "",
-  "imgBgColorLightMode": "transparent",
-  "imgBgColorDarkMode": "transparent",
+  "imgBgColorLightMode": "#FFF",
+  "imgBgColorDarkMode": "black",
   "productionUrl": "https://cslibre.github.io"
 }
