@@ -1,17 +1,17 @@
 // START 11TY imports
-import eleventyNavigationPlugin             from "@11ty/eleventy-navigation";
-import { InputPathToUrlTransformPlugin }    from "@11ty/eleventy";
-import { eleventyImageTransformPlugin }     from "@11ty/eleventy-img";
-import { EleventyHtmlBasePlugin }           from "@11ty/eleventy";
-import pluginRss                            from "@11ty/eleventy-plugin-rss";
+import eleventyNavigationPlugin from "@11ty/eleventy-navigation";
+import { InputPathToUrlTransformPlugin } from "@11ty/eleventy";
+import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
+import { EleventyHtmlBasePlugin } from "@11ty/eleventy";
+import pluginRss from "@11ty/eleventy-plugin-rss";
 // END 11TY imports
 
 // START LibDoc imports
-import libdocConfig                         from "./_data/libdocConfig.js";
-import libdocFunctions                      from "./_data/libdocFunctions.js";
+import libdocConfig from "./_data/libdocConfig.js";
+import libdocFunctions from "./_data/libdocFunctions.js";
 // END LibDoc imports
 
-export default function(eleventyConfig) {
+export default function (eleventyConfig) {
     // START PLUGINS
     eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
     eleventyConfig.addPlugin(InputPathToUrlTransformPlugin);
@@ -47,13 +47,67 @@ export default function(eleventyConfig) {
     eleventyConfig.addPairedShortcode("sandboxFile", libdocFunctions.shortcodes.sandboxFile);
     // END SHORTCODES
 
+    //Java Code Runner Passthrough
+    eleventyConfig.addShortcode("runjava", function (name, code) {
+        const encoded = encodeURIComponent(code);
+        const safeId = name.replace(/[^a-zA-Z0-9]/g, "_");
+        const baseUrl = "https://onecompiler.com/embed/";
+
+        const params = [
+            "language=java",
+            "hideLanguageSelection=true",
+            "hideNew=true",
+            "hideTitle=true",
+            "hideEditorOptions=true",
+            "hideNewFileOption=true",
+            "hideStdin=true",
+            "fontSize=16",
+            "listenToEvents=true",
+            "hideResult=false"
+        ].join("&");
+
+        const src = `${baseUrl}?${params}`;
+
+        return `
+      <div class="java-runner mb-6">
+        <h4 class="font-semibold mb-2">${name}</h4>
+        <iframe
+          id="oc-editor-${safeId}"
+          src="${src}"
+          width="100%"
+          height="200"
+          frameborder="0"
+          style="border-radius:8px;overflow:hidden;"
+        ></iframe>
+
+        <script>
+          (function() {
+            const iframe = document.getElementById("oc-editor-${safeId}");
+            const encodedCode = "${encoded}";
+
+            iframe.addEventListener("load", function() {
+              iframe.contentWindow.postMessage({
+                eventType: "populateCode",
+                language: "java",
+                files: [{ name: "Main.java", content: decodeURIComponent(encodedCode) }]
+              }, "*");
+            });
+          })();
+        </script>
+      </div>
+    `;
+    });
+
+
+
+
     // START FILE COPY
-	eleventyConfig.addPassthroughCopy("sandboxes");
+    eleventyConfig.addPassthroughCopy("sandboxes");
     eleventyConfig.addPassthroughCopy("assets");
     eleventyConfig.addPassthroughCopy("core/assets");
     eleventyConfig.addPassthroughCopy("favicon.png");
     // END FILE COPY
-    
+
     return {
         pathPrefix: libdocConfig.htmlBasePathPrefix
     }
