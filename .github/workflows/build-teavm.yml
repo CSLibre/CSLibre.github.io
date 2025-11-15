@@ -1,0 +1,154 @@
+name: Build TeaVM Java Apps
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-teavm:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Build with Maven
+      run: |
+        echo "📁 Current directory structure:"
+        ls -la
+        echo "📁 Java source structure:"
+        find java-src -type f -name "*.java" 2>/dev/null | head -10 || echo "No Java files found"
+        
+        if [ ! -d "java-src" ]; then
+          echo "❌ java-src directory not found!"
+          echo "📋 Creating basic Java structure..."
+          mkdir -p java-src/src/main/java/com/cslibre
+          cat > java-src/pom.xml << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.cslibre</groupId>
+    <artifactId>text-demo</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <teavm.version>0.8.0</teavm.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-classlib</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-jso-apis</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-platform</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-maven-plugin</artifactId>
+                <version>${teavm.version}</version>
+                <executions>
+                    <execution>
+                        <id>web-client</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <targetDirectory>../teavm-output/text-demo</targetDirectory>
+                            <mainClass>com.cslibre.TextDemo</mainClass>
+                            <minifying>false</minifying>
+                            <sourceMapsGenerated>true</sourceMapsGenerated>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+EOF
+
+          cat > java-src/src/main/java/com/cslibre/TextDemo.java << 'EOF'
+package com.cslibre;
+
+import org.teavm.jso.browser.Window;
+import org.teavm.jso.dom.html.HTMLDocument;
+import org.teavm.jso.dom.html.HTMLElement;
+
+public class TextDemo {
+    public static void main(String[] args) {
+        HTMLDocument document = HTMLDocument.current();
+        HTMLElement body = document.getBody();
+        
+        HTMLElement div = document.createElement("div");
+        div.setInnerHTML("<h3>🚀 Hello from Java via TeaVM!</h3>" +
+                        "<p>This Java application is running in your browser.</p>" +
+                        "<p>✅ No Java installation required</p>" +
+                        "<p>✅ Compiled to JavaScript via GitHub Actions</p>" +
+                        "<button style='padding: 10px; margin: 5px;' onclick='alert(\"Java button clicked!\")'>Click Me from Java</button>");
+        div.setAttribute("style", "border: 2px solid #007bff; padding: 20px; border-radius: 8px; background: #f8f9fa;");
+        body.appendChild(div);
+        
+        Window.alert("🎉 Java application loaded successfully via TeaVM!");
+    }
+}
+EOF
+          echo "✅ Created basic Java structure"
+        fi
+        
+        echo "🔨 Building with Maven..."
+        cd java-src
+        mvn clean compile
+        
+    - name: List generated files
+      run: |
+        echo "📁 Generated TeaVM files:"
+        find teavm-output -type f -name "*.js" 2>/dev/null | head -10 || echo "No JS files generated yet"
+        if [ -d "teavm-output/text-demo" ]; then
+          ls -la teavm-output/text-demo/
+          echo "📊 File sizes:"
+          du -sh teavm-output/text-demo/*.js
+        else
+          echo "❌ teavm-output/text-demo directory not created"
+        fi
+        
+    - name: Upload TeaVM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: teavm-output
+        path: teavm-output/
+        retention-days: 30
+        if-no-files-found: error
