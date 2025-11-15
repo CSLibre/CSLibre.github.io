@@ -1,4 +1,5 @@
 name: Build TeaVM Java Apps
+
 on:
   push:
     branches: [ main ]
