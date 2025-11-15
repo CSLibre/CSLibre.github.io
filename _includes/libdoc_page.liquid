@@ -103,6 +103,86 @@
             blogPostsCount: `{{ collections.post.size }}`
         }
     </script>
+    <<!-- TeaVM Runtime -->
+<script src="/assets/teavm/teavm.js"></script>
+
+<!-- TeaVM Application Loader -->
+<script>
+class TeaVMManager {
+    constructor() {
+        this.apps = new Map();
+        this.init();
+    }
+    
+    init() {
+        console.log('TeaVMManager initialized');
+        
+        // Handle start buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('teavm-start-btn')) {
+                const appName = e.target.getAttribute('data-app');
+                this.loadApp(appName);
+            }
+        });
+    }
+    
+    async loadApp(appName) {
+        const button = document.querySelector(`.teavm-start-btn[data-app="${appName}"]`);
+        const status = document.querySelector(`.teavm-status[data-app="${appName}"]`);
+        const appArea = document.querySelector(`.teavm-app-area[data-app="${appName}"]`);
+        const errorEl = document.querySelector(`.teavm-error[data-app="${appName}"]`);
+        const container = document.getElementById(`teavm-container-${appName}`);
+        
+        button.disabled = true;
+        status.textContent = 'Loading application...';
+        appArea.style.display = 'block';
+        errorEl.style.display = 'none';
+        
+        try {
+            // Load the TeaVM JavaScript files
+            await this.loadTeaVMScripts(appName);
+            
+            // The TeaVM compiled code should automatically run
+            status.textContent = 'Application running!';
+            
+        } catch (error) {
+            console.error(`Failed to load TeaVM app ${appName}:`, error);
+            errorEl.textContent = `Failed to load: ${error.message}`;
+            errorEl.style.display = 'block';
+            status.textContent = 'Load failed';
+            button.disabled = false;
+        }
+    }
+    
+    async loadTeaVMScripts(appName) {
+        const basePath = `/teavm-output/${appName}/`;
+        const scripts = [
+            `${basePath}teavm.js`,
+            `${basePath}classes.js`,
+            `${basePath}text-demo.js`
+        ];
+        
+        for (const scriptSrc of scripts) {
+            await this.loadScript(scriptSrc);
+        }
+    }
+    
+    loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+            document.head.appendChild(script);
+        });
+    }
+}
+
+// Initialize TeaVM manager
+document.addEventListener('DOMContentLoaded', () => {
+    window.teavmManager = new TeaVMManager();
+});
+</script>
 </head>
 <body class="d-flex fd-column ai-center | m-0">
     <div class="d-flex | w-100"

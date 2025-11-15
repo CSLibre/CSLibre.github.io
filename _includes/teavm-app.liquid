@@ -1,0 +1,129 @@
+{% comment %}
+  TeaVM Java App Shortcode
+  Usage: {% teavm "text-demo", "Text Editor Demo" %}
+{% endcomment %}
+
+{% assign appName = include.name | default: name %}
+{% assign appTitle = include.title | default: title | default: "Java Application" %}
+{% assign appPath = include.path | default: path | default: name %}
+
+<div class="teavm-app-container" data-app="{{ appName }}">
+    <div class="teavm-app-header">
+        <h4>{{ appTitle }}</h4>
+        <div class="teavm-app-info">
+            <small>Powered by TeaVM • Java in Browser</small>
+        </div>
+    </div>
+    
+    <div class="teavm-app-controls">
+        <button class="teavm-start-btn btn btn-primary" data-app="{{ appName }}">
+            Start {{ appTitle }}
+        </button>
+        <span class="teavm-status" data-app="{{ appName }}">Ready to load</span>
+    </div>
+    
+    <div class="teavm-app-area" data-app="{{ appName }}" style="display: none;">
+        <div id="teavm-container-{{ appName }}" class="teavm-container">
+            <div class="teavm-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading Java application...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="teavm-error" data-app="{{ appName }}" style="display: none;"></div>
+</div>
+
+<style>
+.teavm-app-container {
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    margin: 20px 0;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.teavm-app-header {
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.teavm-app-header h4 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.teavm-app-info {
+    margin-top: 5px;
+}
+
+.teavm-app-info small {
+    color: #6c757d;
+}
+
+.teavm-app-controls {
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.teavm-app-area {
+    padding: 20px;
+    min-height: 200px;
+}
+
+.teavm-container {
+    width: 100%;
+}
+
+.teavm-loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.teavm-error {
+    padding: 15px 20px;
+    background: #f8d7da;
+    color: #721c24;
+    border-top: 1px solid #f5c6cb;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+</style>

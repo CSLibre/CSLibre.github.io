@@ -48,64 +48,18 @@ export default function (eleventyConfig) {
     // END SHORTCODES
 
     //Java Code Runner Passthrough
-    eleventyConfig.addShortcode("runjava", function (name, code) {
-        const encoded = encodeURIComponent(code);
-        const safeId = name.replace(/[^a-zA-Z0-9]/g, "_");
-        const baseUrl = "https://onecompiler.com/embed/";
-
-        const params = [
-            "language=java",
-            "hideLanguageSelection=true",
-            "hideNew=true",
-            "hideTitle=true",
-            "hideEditorOptions=true",
-            "hideNewFileOption=true",
-            "hideStdin=true",
-            "fontSize=16",
-            "listenToEvents=true",
-            "hideResult=false"
-        ].join("&");
-
-        const src = `${baseUrl}?${params}`;
-
+    eleventyConfig.addShortcode("teavm", function(name, title = "Java Application") {
         return `
-      <div class="java-runner mb-6">
-        <h4 class="font-semibold mb-2">${name}</h4>
-        <iframe
-          id="oc-editor-${safeId}"
-          src="${src}"
-          width="100%"
-          height="200"
-          frameborder="0"
-          style="border-radius:8px;overflow:hidden;"
-        ></iframe>
-
-        <script>
-          (function() {
-            const iframe = document.getElementById("oc-editor-${safeId}");
-            const encodedCode = "${encoded}";
-
-            iframe.addEventListener("load", function() {
-              iframe.contentWindow.postMessage({
-                eventType: "populateCode",
-                language: "java",
-                files: [{ name: "Main.java", content: decodeURIComponent(encodedCode) }]
-              }, "*");
-            });
-          })();
-        </script>
-      </div>
-    `;
-    });
-
-
-
+        {% include 'teavm-app.liquid', name: '${name}', title: '${title}' %}
+        `.trim();
+    }); 
 
     // START FILE COPY
     eleventyConfig.addPassthroughCopy("sandboxes");
     eleventyConfig.addPassthroughCopy("assets");
     eleventyConfig.addPassthroughCopy("core/assets");
     eleventyConfig.addPassthroughCopy("favicon.png");
+    eleventyConfig.addPassthroughCopy("teavm-output");
     // END FILE COPY
 
     return {
