@@ -36,6 +36,7 @@
     </dependencies>
     
     <build>
+        <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.teavm</groupId>
@@ -43,17 +44,16 @@
                 <version>${teavm.version}</version>
                 <executions>
                     <execution>
-                        <id>compile-to-js</id>
+                        <id>web-client</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                         <configuration>
                             <targetDirectory>../teavm-output/text-demo</targetDirectory>
-                            <mainClass>com.cslibre.TextDemo</mainClass>
+                            <mainClass>TextDemo</mainClass>
                             <minifying>false</minifying>
                             <sourceMapsGenerated>true</sourceMapsGenerated>
-                            <debugInformationGenerated>true</debugInformationGenerated>
                             <optimization>SIMPLE</optimization>
                         </configuration>
                     </execution>

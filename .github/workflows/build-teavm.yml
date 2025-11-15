@@ -1,5 +1,4 @@
 name: Build TeaVM Java Apps
-
 on:
   push:
     branches: [ main ]
@@ -29,14 +28,19 @@ jobs:
       run: |
         echo "📁 Current directory structure:"
         ls -la
-        echo "📁 Java source structure:"
-        find java-src -type f -name "*.java" 2>/dev/null | head -10 || echo "No Java files found"
         
-        if [ ! -d "java-src" ]; then
-          echo "❌ java-src directory not found!"
-          echo "📋 Creating basic Java structure..."
-          mkdir -p java-src/src/main/java/com/cslibre
-          cat > java-src/pom.xml << 'EOF'
+        if [ ! -d "JavaDocs" ]; then
+          echo "📋 Creating JavaDocs structure..."
+          mkdir -p JavaDocs/src
+        fi
+        
+        echo "📁 JavaDocs structure:"
+        find JavaDocs -type f -name "*.java" 2>/dev/null | head -10 || echo "No Java files found - will create default"
+        
+        # Create files if they don't exist
+        if [ ! -f "JavaDocs/pom.xml" ]; then
+          echo "📄 Creating pom.xml..."
+          cat > JavaDocs/pom.xml << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -75,6 +79,7 @@ jobs:
     </dependencies>
     
     <build>
+        <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.teavm</groupId>
@@ -89,9 +94,10 @@ jobs:
                         </goals>
                         <configuration>
                             <targetDirectory>../teavm-output/text-demo</targetDirectory>
-                            <mainClass>com.cslibre.TextDemo</mainClass>
+                            <mainClass>TextDemo</mainClass>
                             <minifying>false</minifying>
                             <sourceMapsGenerated>true</sourceMapsGenerated>
+                            <optimization>SIMPLE</optimization>
                         </configuration>
                     </execution>
                 </executions>
@@ -100,49 +106,143 @@ jobs:
     </build>
 </project>
 EOF
-
-          cat > java-src/src/main/java/com/cslibre/TextDemo.java << 'EOF'
-package com.cslibre;
-
+        fi
+        
+        if [ ! -f "JavaDocs/src/TextDemo.java" ]; then
+          echo "📄 Creating TextDemo.java..."
+          cat > JavaDocs/src/TextDemo.java << 'EOF'
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
+import org.teavm.jso.dom.html.TextAreaElement;
 
 public class TextDemo {
+    private static HTMLDocument document;
+    private static HTMLElement container;
+    private static TextAreaElement textArea;
+    
     public static void main(String[] args) {
-        HTMLDocument document = HTMLDocument.current();
-        HTMLElement body = document.getBody();
+        document = HTMLDocument.current();
+        container = document.getElementById("teavm-container");
         
-        HTMLElement div = document.createElement("div");
-        div.setInnerHTML("<h3>🚀 Hello from Java via TeaVM!</h3>" +
-                        "<p>This Java application is running in your browser.</p>" +
-                        "<p>✅ No Java installation required</p>" +
-                        "<p>✅ Compiled to JavaScript via GitHub Actions</p>" +
-                        "<button style='padding: 10px; margin: 5px;' onclick='alert(\"Java button clicked!\")'>Click Me from Java</button>");
-        div.setAttribute("style", "border: 2px solid #007bff; padding: 20px; border-radius: 8px; background: #f8f9fa;");
-        body.appendChild(div);
+        if (container == null) {
+            Window.alert("Container element not found!");
+            return;
+        }
         
-        Window.alert("🎉 Java application loaded successfully via TeaVM!");
+        createUI();
+        addOutput("🚀 TextDemo Java application loaded successfully!");
+        addOutput("✅ Running in browser via TeaVM");
+        addOutput("📝 Type in the text area below");
+    }
+    
+    private static void createUI() {
+        container.setInnerHTML("");
+        
+        HTMLElement title = document.createElement("h3");
+        title.setInnerHTML("📝 Java Text Editor");
+        title.setAttribute("style", "color: #2c3e50; margin-bottom: 20px;");
+        container.appendChild(title);
+        
+        textArea = (TextAreaElement) document.createElement("textarea");
+        textArea.setAttribute("id", "text-editor");
+        textArea.setAttribute("placeholder", "Start typing your text here...");
+        textArea.setAttribute("style", 
+            "width: 100%; height: 150px; padding: 12px; margin: 10px 0; " +
+            "border: 2px solid #e1e5e9; border-radius: 6px; " +
+            "font-family: 'Courier New', monospace; font-size: 14px; " +
+            "resize: vertical; box-sizing: border-box;");
+        container.appendChild(textArea);
+        
+        HTMLElement buttonContainer = document.createElement("div");
+        buttonContainer.setAttribute("style", 
+            "margin: 15px 0; display: flex; flex-wrap: wrap; gap: 8px;");
+        
+        String[] buttons = {
+            "Clear Text", "To UPPERCASE", "to lowercase", "Word Count", 
+            "Character Count", "Reverse Text"
+        };
+        
+        for (String buttonText : buttons) {
+            HTMLElement button = document.createElement("button");
+            button.setInnerHTML(buttonText);
+            button.setAttribute("style", 
+                "padding: 8px 16px; border: none; border-radius: 4px; " +
+                "background: #007bff; color: white; cursor: pointer; " +
+                "font-size: 13px; transition: background 0.2s;");
+            button.addEventListener("click", (event) -> handleButtonClick(buttonText));
+            buttonContainer.appendChild(button);
+        }
+        
+        container.appendChild(buttonContainer);
+        
+        HTMLElement output = document.createElement("div");
+        output.setAttribute("id", "teavm-output");
+        output.setAttribute("style", 
+            "margin-top: 20px; padding: 15px; background: #f8f9fa; " +
+            "border: 1px dashed #dee2e6; border-radius: 6px; " +
+            "min-height: 60px; font-family: monospace; font-size: 13px;");
+        container.appendChild(output);
+    }
+    
+    private static void handleButtonClick(String action) {
+        String text = textArea.getValue();
+        
+        switch (action) {
+            case "Clear Text":
+                textArea.setValue("");
+                addOutput("🗑️ Text cleared");
+                break;
+            case "To UPPERCASE":
+                textArea.setValue(text.toUpperCase());
+                addOutput("🔠 Converted to UPPERCASE");
+                break;
+            case "to lowercase":
+                textArea.setValue(text.toLowerCase());
+                addOutput("🔡 Converted to lowercase");
+                break;
+            case "Word Count":
+                int wordCount = text.trim().isEmpty() ? 0 : text.trim().split("\\s+").length;
+                addOutput("📊 Word count: " + wordCount);
+                break;
+            case "Character Count":
+                int charCount = text.length();
+                addOutput("🔢 Character count: " + charCount);
+                break;
+            case "Reverse Text":
+                textArea.setValue(new StringBuilder(text).reverse().toString());
+                addOutput("🔄 Text reversed");
+                break;
+        }
+    }
+    
+    private static void addOutput(String message) {
+        HTMLElement output = document.getElementById("teavm-output");
+        HTMLElement messageDiv = document.createElement("div");
+        messageDiv.setInnerHTML("• " + message);
+        messageDiv.setAttribute("style", "margin: 4px 0; padding: 2px 0; color: #495057;");
+        output.appendChild(messageDiv);
+        output.scrollTop = output.scrollHeight;
     }
 }
 EOF
-          echo "✅ Created basic Java structure"
         fi
         
         echo "🔨 Building with Maven..."
-        cd java-src
+        cd JavaDocs
         mvn clean compile
         
     - name: List generated files
       run: |
         echo "📁 Generated TeaVM files:"
-        find teavm-output -type f -name "*.js" 2>/dev/null | head -10 || echo "No JS files generated yet"
         if [ -d "teavm-output/text-demo" ]; then
           ls -la teavm-output/text-demo/
           echo "📊 File sizes:"
           du -sh teavm-output/text-demo/*.js
+          echo "✅ TeaVM compilation successful!"
         else
           echo "❌ teavm-output/text-demo directory not created"
+          exit 1
         fi
         
     - name: Upload TeaVM artifacts
